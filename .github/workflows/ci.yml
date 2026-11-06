@@ -1,0 +1,65 @@
+# Continuous integration: runs the same checks as the local pre-commit hooks,
+# plus module tests and the debugging-exercise checks.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Checks and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Read the pinned Terraform version
+        id: terraform-version
+        run: echo "version=$(awk '$1 == "terraform" {print $2}' .tool-versions)" >> "$GITHUB_OUTPUT"
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ steps.terraform-version.outputs.version }}
+          terraform_wrapper: false
+
+      - name: Install tflint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install terraform-docs
+        run: go install github.com/terraform-docs/terraform-docs@latest
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install pre-commit, detect-secrets and checkov
+        run: |
+          uv tool install pre-commit
+          uv tool install detect-secrets
+          uv tool install checkov
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Run all pre-commit checks
+        run: pre-commit run --all-files --show-diff-on-failure
+
+      - name: Run module tests
+        run: make test
+
+      - name: Check the debugging exercises
+        run: make check-exercises

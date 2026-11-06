@@ -1,0 +1,42 @@
+# Terraform working files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.log
+tfplan
+*.tfplan
+
+# Manual state backups can contain secrets
+state-backup*
+
+# Variable files may contain secrets; commit only *.example
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local tooling
+.venv/
+.terraform.d/
+.tflint.d/
+.vscode
+
+# Files written by local-provider experiments and module tests
+experiments/**/output/
+modules/**/test-output/
+
+# Backend settings contain the AWS account ID; commit only *.example
+backend.hcl
+
+# claude
+specs
+claude.md
+CLAUDE.md
+.claude

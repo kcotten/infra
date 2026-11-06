@@ -1,0 +1,50 @@
+# Local quality gates (REQ-009, REQ-010, REQ-013). Install with: make setup
+# Exercises are deliberately broken, so Terraform checks skip them.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+
+  - repo: local
+    hooks:
+      - id: terraform-fmt
+        name: terraform fmt
+        entry: scripts/terraform-hook.sh fmt
+        language: system
+        files: \.tf$
+        exclude: ^exercises/
+      - id: terraform-validate
+        name: terraform validate
+        entry: scripts/terraform-hook.sh validate
+        language: system
+        files: \.tf$
+        exclude: ^exercises/
+      - id: terraform-tflint
+        name: tflint
+        entry: scripts/terraform-hook.sh tflint
+        language: system
+        files: \.tf$
+        exclude: ^exercises/
+      - id: terraform-docs
+        name: terraform-docs
+        entry: scripts/terraform-hook.sh docs
+        language: system
+        files: ^modules/.*\.tf$
+      - id: terraform-scan
+        name: checkov security scan
+        entry: scripts/terraform-hook.sh scan
+        language: system
+        files: \.tf$
+        exclude: ^exercises/
