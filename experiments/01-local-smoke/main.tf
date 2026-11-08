@@ -12,7 +12,13 @@ resource "random_pet" "example" {
   length = 2
 }
 
-resource "local_file" "greeting" {
+resource "local_file" "hello" {
   filename = "${path.module}/greeting.txt"
   content  = "Hello from ${var.experiment_name}: ${random_pet.example.id}\n"
+}
+
+# renamed 11/6/2026
+moved {
+  from = local_file.greeting
+  to   = local_file.hello
 }

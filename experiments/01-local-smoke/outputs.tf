@@ -10,5 +10,5 @@ output "example_name" {
 
 output "greeting_path" {
   description = "Where the greeting file was written."
-  value       = local_file.greeting.filename
+  value       = local_file.hello.filename
 }

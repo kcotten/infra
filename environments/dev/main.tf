@@ -27,7 +27,7 @@ module "welcome" {
   source = "../../modules/greeting"
 
   name      = var.environment
-  message   = "Welcome"
+  message   = "Welcome ${var.owner}"
   directory = "${path.module}/output"
   tags      = local.tags
 }
